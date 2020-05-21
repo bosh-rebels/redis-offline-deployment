@@ -1,0 +1,79 @@
+name: redis
+
+releases:
+- name: redis
+
+- name: bpm
+
+instance_groups:
+- name: redis
+  jobs:
+  - name: redis
+    release: redis
+    properties:
+      password: ((redis_password))
+    provides:
+      redis:
+        as: redis
+  instances: ((redis_instances))
+  stemcell: default
+  azs: 
+  - z1
+  - z2
+  - z3
+  vm_type: ((redis_vm_type))
+  persistent_disk: ((redis_persistent_disk_type))
+  networks:
+  - name: ((redis_network))
+
+- name: redis-sentinel
+  jobs:
+  - name: redis-sentinel
+    release: redis
+    properties:
+      bind_static_ip: true
+      password: ((redis_password))
+    consumes:
+      redis:
+        from: redis
+  instances: ((redis_instances))
+  stemcell: default 
+  azs: 
+  - z1
+  - z2
+  - z3
+  vm_type: ((redis_vm_type))
+  persistent_disk: ((redis_persistent_disk_type))
+  networks: 
+  - name: ((redis_network))
+  
+- name: sanity-tests
+  jobs:
+  - name: sanity-tests
+    release: redis
+  instances: 1
+  stemcell: default
+  azs: 
+  - z1
+  vm_type: ((errands_vm_type))
+  lifecycle: errand
+  networks:
+  - name: ((errands_network))
+
+variables:
+- name: redis_password
+  type: password
+
+update:
+  canaries: 0
+  max_in_flight: 1
+  serial: true
+  canary_watch_time: 1000-20000
+  update_watch_time: 1000-20000
+
+addons:
+- name: bpm
+  jobs:
+  - name: bpm
+    release: bpm
+
