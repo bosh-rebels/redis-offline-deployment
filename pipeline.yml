@@ -39,7 +39,7 @@ jobs:
     params: { unpack: true }
   - put: deploy-release
     params:
-      manifest: redis-offline-deployment/manifest.yml
+      manifest: redis-offline-deployment/redis-offline-manifest.yml
       stemcells:
       - redis-offline-release/stemcell/stemcell.tgz
       releases:
