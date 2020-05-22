@@ -13,12 +13,11 @@ You can set concourse pipeline using below command,
 
 NOTES: Offline package archive, should have following folder structure. 
 
-  Example : redis offline release folder structure
- 
-  ├── redis-offline-release-0.14.3.tgz
-  ├── releases
-  │   ├── bpm-1.1.8-ubuntu-xenial-621.74-20200518-125405-440051502.tgz
-  │   └── redis-0.14.3-ubuntu-xenial-621.74-20200518-125356-964701539.tgz
-  └── stemcells
-      └── stemcell.tgz
+  ## Example : redis offline release folder structure
+>redis-offline-release-0.14.3.tgz
+ * [releases](./releases)
+   * [bpm-1.1.8-ubuntu-xenial-621.74-20200522-140423-752483458.tgz](./releases/bpm-1.1.8-ubuntu-xenial-621.74-20200522-140423-752483458.tgz)
+   * [redis-0.14.3-ubuntu-xenial-621.74-20200522-140415-857561784.tgz](./releases/redis-0.14.3-ubuntu-xenial-621.74-20200522-140415-857561784.tgz)
+ * [stemcell](./stemcell)
+   * [stemcell.tgz](./stemcell/stemcell.tgz)
 
