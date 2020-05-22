@@ -2,8 +2,12 @@ name: redis
 
 releases:
 - name: redis
-
 - name: bpm
+
+stemcells:
+- os: ((stemcell_os))
+  alias: default
+  version: ((stemcell_version))
 
 instance_groups:
 - name: redis

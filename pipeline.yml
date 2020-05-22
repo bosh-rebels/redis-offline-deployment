@@ -1,0 +1,58 @@
+resource_types:
+- name: bosh-deployment
+  type: docker-image
+  source:
+    repository: cloudfoundry/bosh-deployment-resource
+
+resources:
+
+- name: redis-offline-deployment
+  type: git
+  source:
+    uri: https://github.com/bosh-rebels/redis-offline-deployment
+    branch: master
+
+- name: deploy-release
+  type: bosh-deployment
+  source:
+    deployment: redis
+    target: ((bosh_target))
+    client: ((bosh_client))
+    client_secret: ((bosh_client_secret))
+    ca_cert: ((bosh_ca_cert))
+
+- name: redis-offline-release
+  type: s3
+  source:
+    region_name: ((s3_region))
+    bucket: binary-releases-repo-rebels
+    regexp: "offline-releases/redis/redis-offline-release-(.*).tgz"
+    access_key_id: ((s3_access_key_id))
+    secret_access_key: ((s3_secret_access_key))
+
+jobs:
+
+- name: deploy-offline-deployment
+  plan:
+  - get: redis-offline-deployment
+  - get: redis-offline-release
+    params: { unpack: true }
+  - put: deploy-release
+    params:
+      manifest: redis-offline-deployment/manifest.yml
+      stemcells:
+      - redis-offline-release/stemcell/stemcell.tgz
+      releases:
+      - redis-offline-release/releases/redis-*.tgz
+      - redis-offline-release/releases/bpm-*.tgz
+      vars:
+        deployment_name: redis-offline-deployment
+        redis_instances: 3
+        redis_vm_type: default
+        redis_persistent_disk_type: 10240
+        redis_network: default
+        errands_vm_type: default
+        errands_network: default
+        stemcell_os: ubuntu-xenial
+        stemcell_version: 621.74
+
