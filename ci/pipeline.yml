@@ -14,19 +14,24 @@ resources:
 
 - name: deploy-release
   type: bosh-deployment
-  source:
-    deployment: redis
+  source: &redis-deployment-resource
+    deployment: redis-offline-deployment
     target: ((bosh_target))
     client: ((bosh_client))
     client_secret: ((bosh_client_secret))
     ca_cert: ((bosh_ca_cert))
+
+- name: remove-deployment
+  type: bosh-deployment
+  source: 
+    <<: *redis-deployment-resource
 
 - name: redis-offline-release
   type: s3
   source:
     region_name: ((s3_region))
     bucket: binary-releases-repo-rebels
-    regexp: "offline-releases/redis/redis-offline-release-(.*).tgz"
+    regexp: "deployments/redis/redis-(.*).tgz"
     access_key_id: ((s3_access_key_id))
     secret_access_key: ((s3_secret_access_key))
 
@@ -39,12 +44,13 @@ jobs:
     params: { unpack: true }
   - put: deploy-release
     params:
-      manifest: redis-offline-deployment/redis-offline-manifest.yml
+      manifest: redis-offline-release/manifest.yml
       stemcells:
-      - redis-offline-release/stemcell/stemcell.tgz
+        - redis-offline-release/stemcell/stemcell.tgz
       releases:
-      - redis-offline-release/releases/redis-*.tgz
-      - redis-offline-release/releases/bpm-*.tgz
+        - redis-offline-release/releases/*.tgz
+      vars_files:
+        - redis-offline-release/vars_file/vars.yml
       vars:
         deployment_name: redis-offline-deployment
         redis_instances: 3
@@ -55,4 +61,13 @@ jobs:
         errands_network: default
         stemcell_os: ubuntu-xenial
         stemcell_version: 621.74
+        bpm_version: latest
+        redis_version: latest
 
+- name: remove-deployment
+  plan:
+  - put: remove-deployment
+    params:
+      delete:
+        enabled: true
+        force: true
